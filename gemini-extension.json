@@ -1,14 +1,14 @@
 {
-  "name": "woodmart-development",
-  "version": "1.0.0",
-  "description": "Expert development, design, and SEO optimization for the WoodMart WooCommerce theme.",
+  "name": "woodmart-skill",
+  "version": "2.0.0",
+  "description": "Expert development, design, performance, accessibility and SEO/GEO work on the WoodMart WooCommerce theme.",
   "author": "JeffVato",
   "license": "MIT",
   "mcpServers": {},
   "agentSkills": [
     {
-      "name": "woodmart-development",
-      "description": "Expert development, design, and SEO optimization for the WoodMart WooCommerce theme. Use when designing WordPress layouts, customizing child themes, optimizing e-commerce performance, or implementing technical SEO and LLM-ready features within the WoodMart ecosystem.",
+      "name": "woodmart",
+      "description": "Expert development, design, SEO/GEO, performance and accessibility work on the WoodMart WooCommerce theme. Use when customizing a live WoodMart site over WP-CLI/SSH, building headers/mega-menus/theme-builder layouts, diagnosing performance or accessibility issues, or implementing technical SEO and LLM-discovery (GEO) features.",
       "path": "SKILL.md"
     }
   ]

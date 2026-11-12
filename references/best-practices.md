@@ -1,9 +1,31 @@
 # WoodMart Technical Standards & Best Practices
 
-## 1. Child Theme Architecture
-- **Mandatory:** All PHP and CSS customizations must reside in `woodmart-child`.
-- **Functions:** Use `functions.php` for enqueuing assets and adding custom hooks.
-- **Overrides:** To override a parent template, copy it to the same relative path in the child theme (e.g., `woodmart-child/woocommerce/single-product.php`).
+## 1. Customization Architecture: mu-plugins vs. Child Theme
+- **In practice, a child theme is often not used at all** on a WoodMart site
+  managed over SSH/WP-CLI. Site-specific logic (GEO/`llms.txt`, accessibility
+  fixes, checkout-flow tweaks, fee-calculation overrides, cache purging,
+  fingerprint hiding, etc.) is far more commonly shipped as small, individually
+  named **mu-plugins** in `wp-content/mu-plugins/` (e.g. `btg-geo.php`,
+  `btg-a11y.php`, `btg-gateway-fee-off.php`). Advantages over a child theme
+  for this kind of work: no build step, survives theme/plugin updates
+  untouched, can be dropped in or deleted over SSH in one command, and each
+  file documents exactly one behavior.
+- **If a child theme does exist**, all PHP/CSS customizations still belong
+  there, not in the parent `woodmart` theme directory. Use `functions.php`
+  for enqueuing assets and hooks; override a parent template by copying it to
+  the same relative path (e.g. `woodmart-child/woocommerce/single-product.php`).
+- **Either way:** back up the file you are about to replace or delete before
+  touching it (a timestamped `.bak-<reason>-<date>` copy is enough), and note
+  in the mu-plugin's own comment or your own log what it does and how to
+  undo it — on a live store, "how do I turn this back off" matters as much
+  as "how do I turn it on."
+- **WP-CLI access**, when the theme runs in a Docker container on a VPS:
+  `sudo docker exec -u www-data -w /var/www/html php wp --no-color <command>`.
+  Expect harmless `Deprecated` notices on newer PHP; filter them rather than
+  treating them as failures. `wp theme update woodmart` updates the premium
+  parent theme by hand (it isn't on WordPress.org, so core/plugin auto-update
+  doesn't cover it) — back up theme + child theme + the `woodmart-core`
+  plugin first, and re-check the plugin's required-core-version afterward.
 
 ## 2. CSS & Design System
 - **Variables:** Leverage WoodMart's CSS variable system for consistency:
@@ -131,3 +153,30 @@ attempts:
   `input.wp-color-picker` (NOT the swatch button itself, and NOT the
   nearby "Upload image" button, which sits close enough to misfire a
   coordinate-based click into an unrelated media-library modal).
+
+## 7. Caching & Verifying a Change Actually Shipped
+
+On a WoodMart store sitting behind a server-side page cache and a CDN, "I
+changed it but it still looks old" is usually a caching problem, not a
+reverted change:
+
+- **Page cache and CDN cache are independent.** A reverse-proxy page cache
+  (e.g. an nginx cache with its own purge queue) and an edge CDN (e.g.
+  Cloudflare) each need their own purge step; clearing one does not clear
+  the other.
+- **Query-string cache-busting (`?x=1`) can silently not work** if the site
+  301-redirects away query strings before the cache sees them. Verify by
+  curling the origin directly (bypassing the CDN, e.g. with a `--resolve`
+  override to the origin IP) rather than trusting a browser reload.
+- **`purge_everything`-style CDN purges and page-cache purge queues are not
+  instant** — allow roughly a minute or more before re-checking, and purge
+  the specific path(s) rather than only the bare domain when the CDN purge
+  API is scoped by URL (purging a prefix does not always purge the home
+  page itself).
+- **Compiled-CSS/JS caches** (see `xts-<preset>-css-data` in §4) and the
+  page/CDN cache are three separate layers — a Theme Settings change can be
+  saved, compiled, and still not visible until the page cache and CDN are
+  both purged.
+- After any production change, re-verify the actual rendered response
+  (status code, and for visual/behavioral changes, the real markup or a
+  screenshot) rather than relying on the admin screen reporting success.
