@@ -1,4 +1,4 @@
-# woodmart-skill
+# wordpress-woodmart-skill
 
 An agent skill for working on WordPress sites built with the **WoodMart**
 WooCommerce theme — development, design, performance, accessibility, and
@@ -36,13 +36,13 @@ avoid relearning those lessons from scratch each time.
 
 **As a Gemini CLI extension** (`gemini-extension.json` is the manifest):
 ```
-gemini extensions install https://github.com/jeffvato/woodmart-skill
+gemini extensions install https://github.com/jeffvato/wordpress-woodmart-skill
 ```
 
 **As a Claude Code / Claude Agent SDK skill:** copy this repository into
-your skills directory (e.g. `~/.claude/skills/woodmart-skill/`) so `SKILL.md`
-is discovered, or reference its path directly if your setup loads skills
-from an arbitrary location.
+your skills directory (e.g. `~/.claude/skills/wordpress-woodmart-skill/`) so
+`SKILL.md` is discovered, or reference its path directly if your setup loads
+skills from an arbitrary location.
 
 ## Scope
 
